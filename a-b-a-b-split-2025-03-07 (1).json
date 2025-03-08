@@ -1,0 +1,203 @@
+{
+  "version": "1.0",
+  "exportDate": "2025-03-07T22:12:22.654Z",
+  "mesocycleName": "A-B-A-B Split",
+  "mesocycle": {
+    "name": "A-B-A-B Split",
+    "weeks": 6,
+    "strategy": "mixed",
+    "days": [
+      {
+        "name": "Day 1 - Chest, Triceps Shoulders",
+        "exercises": [
+          {
+            "name": "Bench Press",
+            "category": "chest",
+            "sets": 3,
+            "reps": 6,
+            "weight": 80,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Close Grip Bench Press",
+            "category": "chest",
+            "sets": 2,
+            "reps": 10,
+            "weight": 60,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Dumbbell Lateral Raises",
+            "category": "shoulders",
+            "sets": 3,
+            "reps": 20,
+            "weight": 8.5,
+            "rest": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Day 2 - Back, Biceps & Legs",
+        "exercises": [
+          {
+            "name": "Lat Pulldowns",
+            "category": "back",
+            "sets": 3,
+            "reps": 10,
+            "weight": 50,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Machine Row",
+            "category": "back",
+            "sets": 2,
+            "reps": 12,
+            "weight": 50,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Dumbbell Bicep Curls",
+            "category": "arms",
+            "sets": 3,
+            "reps": 20,
+            "weight": 10,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Leg Press",
+            "category": "legs",
+            "sets": 3,
+            "reps": 10,
+            "weight": 75,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Leg Extensions",
+            "category": "legs",
+            "sets": 3,
+            "reps": 12,
+            "weight": 25,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "RDL",
+            "category": "legs",
+            "sets": 3,
+            "reps": 12,
+            "weight": 60,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Calf Raises",
+            "category": "legs",
+            "sets": 3,
+            "reps": 20,
+            "weight": 0,
+            "rest": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Day 3 - Chest, Triceps & Shoulders",
+        "exercises": [
+          {
+            "name": "Bench Press",
+            "category": "chest",
+            "sets": 5,
+            "reps": 6,
+            "weight": 80,
+            "rest": null,
+            "notes": "Start with max weight then decrease weight each set, trying to match or exceed previous reps."
+          },
+          {
+            "name": "Dumbbell Triceps Extensions",
+            "category": "arms",
+            "sets": 3,
+            "reps": 12,
+            "weight": 8.5,
+            "rest": null,
+            "notes": "Can use double the weight and a single dumbbell if easier"
+          },
+          {
+            "name": "Dumbbell Lateral Raise",
+            "category": "shoulders",
+            "sets": 3,
+            "reps": 15,
+            "weight": 10,
+            "rest": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Day 4 - Back, Biceps & Legs",
+        "exercises": [
+          {
+            "name": "Barbell Row",
+            "category": "back",
+            "sets": 3,
+            "reps": 8,
+            "weight": 60,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Dumbbell One-Arm Rows",
+            "category": "back",
+            "sets": 2,
+            "reps": 10,
+            "weight": 25,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Dumbbell Bicep Curls",
+            "category": "arms",
+            "sets": 3,
+            "reps": 20,
+            "weight": 10,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Bulgarian Split Squats",
+            "category": "legs",
+            "sets": 3,
+            "reps": 10,
+            "weight": 10,
+            "rest": null,
+            "notes": null
+          },
+          {
+            "name": "Dumbbell Squats",
+            "category": "legs",
+            "sets": 2,
+            "reps": 12,
+            "weight": 20,
+            "rest": null,
+            "notes": "Use 20 kg per side"
+          },
+          {
+            "name": "Calf Raises",
+            "category": "legs",
+            "sets": 3,
+            "reps": 20,
+            "weight": 0,
+            "rest": null,
+            "notes": null
+          }
+        ]
+      }
+    ]
+  }
+}
