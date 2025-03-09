@@ -65,6 +65,14 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
         }
 
         body {
@@ -75,6 +83,15 @@
             font-size: var(--font-size-base);
         }
 
+        #app-wrapper {
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: none;
+        }
+
         /* Enhance base container styles */
         .container {
             max-width: 1200px;
@@ -83,6 +100,8 @@
             width: 100%;
             box-sizing: border-box;
             transition: max-width 0.3s ease;
+            min-height: 100%;
+            padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px) + var(--spacing-xl));
         }
 
         /* Add device emulation toggle styles */
@@ -154,8 +173,13 @@
 
         /* Mobile styles */
         @media (max-width: 768px) {
+            #app-wrapper {
+                padding-bottom: 0;
+            }
+            
             .container {
-                padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px));
+                min-height: 100%;
+                padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px) + var(--spacing-xl));
             }
             
             .tabs {
@@ -1716,15 +1740,21 @@
 
         /* Add mobile bottom navigation styles */
         .mobile-nav {
+            display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--light);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
             z-index: 1000;
-            height: calc(var(--nav-height) + env(safe-area-inset-bottom, 34px));
-            padding-bottom: env(safe-area-inset-bottom, 34px);
+            height: var(--nav-height);
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
         }
 
         .mobile-nav-list {
@@ -1734,6 +1764,8 @@
             margin: 0;
             padding: 0;
             height: 100%;
+            max-width: 100%;
+            width: 100%;
         }
 
         .mobile-nav-item {
@@ -1787,45 +1819,336 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>FitTrack</h1>
-        <button class="device-toggle" id="deviceToggle">Toggle Mobile Preview</button>
-        
-        <!-- Desktop tabs -->
-        <div class="tabs">
-            <div class="tab" data-tab="welcome">Welcome</div>
-            <div class="tab" data-tab="daily-entry">Daily Entry</div>
-            <div class="tab" data-tab="stats">Stats</div>
-            <div class="tab" data-tab="graphs">Graphs</div>
-            <div class="tab" data-tab="history">History</div>
-            <div class="tab" data-tab="workout-plan">Workout Plan</div>
-            <div class="tab" data-tab="workout-tracker">Workout Tracker</div>
-        </div>
+    <div id="app-wrapper">
+        <div class="container">
+            <h1>FitTrack</h1>
+            <button class="device-toggle" id="deviceToggle">Toggle Mobile Preview</button>
+            
+            <!-- Desktop tabs -->
+            <div class="tabs">
+                <div class="tab" data-tab="welcome">Welcome</div>
+                <div class="tab" data-tab="daily-entry">Daily Entry</div>
+                <div class="tab" data-tab="stats">Stats</div>
+                <div class="tab" data-tab="graphs">Graphs</div>
+                <div class="tab" data-tab="history">History</div>
+                <div class="tab" data-tab="workout-plan">Workout Plan</div>
+                <div class="tab" data-tab="workout-tracker">Workout Tracker</div>
+            </div>
 
-        <!-- Rest of the container content -->
-        <!-- Edit Entry Modal -->
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <h2>Edit Entry</h2>
-                <form id="edit-form">
-                    <input type="hidden" id="edit-entry-index">
+            <!-- Rest of the container content -->
+            <!-- Edit Entry Modal -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <h2>Edit Entry</h2>
+                    <form id="edit-form">
+                        <input type="hidden" id="edit-entry-index">
+                        
+                        <div class="form-group">
+                            <label for="edit-date">Date:</label>
+                            <input type="date" id="edit-date" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="edit-weight-kg">Weight (kg):</label>
+                                    <input type="number" id="edit-weight-kg" min="20" max="300" step="0.1" placeholder="Enter weight in kg">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="edit-weight-lbs">Weight (lbs):</label>
+                                    <input type="number" id="edit-weight-lbs" min="40" max="660" step="0.1" placeholder="Enter weight in lbs">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Workouts:</label>
+                            <div class="row">
+                                <div class="col">
+                                    <select id="edit-workout-select">
+                                        <option value="">Select workout</option>
+                                        <option value="weights">Weights</option>
+                                        <option value="martial arts">Martial Arts</option>
+                                        <option value="biking">Biking</option>
+                                        <option value="running">Running</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="edit-custom-workout" placeholder="Or add custom workout">
+                                </div>
+                            </div>
+                            <button type="button" id="edit-add-workout" style="margin-top: 10px;">Add Workout</button>
+                            <div id="edit-selected-workouts" class="workout-list"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="edit-calories-intake">Calories Intake:</label>
+                                    <input type="number" id="edit-calories-intake" min="0" max="10000" placeholder="Calories consumed">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="edit-calories-burned">Calories Burned:</label>
+                                    <input type="number" id="edit-calories-burned" min="0" max="10000" placeholder="Calories burned">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" id="save-edit">Save Changes</button>
+                            <button type="button" id="cancel-edit" class="btn-danger">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Substitute Exercise Modal -->
+            <div id="substituteModal" class="modal">
+                <div class="modal-content">
+                    <h2>Substitute Exercise</h2>
+                    <div class="form-group">
+                        <label for="substitute-search">Search Exercise:</label>
+                        <input type="text" id="substitute-search" placeholder="Type to search exercises">
+                    </div>
+                    
+                    <div class="substitute-list" id="substitute-exercises">
+                        <!-- Will be populated with JavaScript -->
+                    </div>
                     
                     <div class="form-group">
-                        <label for="edit-date">Date:</label>
-                        <input type="date" id="edit-date" required>
+                        <label for="custom-substitute">Or Add Custom Exercise:</label>
+                        <input type="text" id="custom-substitute" placeholder="Enter exercise name">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="button" id="confirm-substitute">Substitute</button>
+                        <button type="button" id="cancel-substitute" class="btn-danger">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Exercise Form Modal -->
+            <div id="exerciseFormModal" class="modal">
+                <div class="modal-content">
+                    <h2 id="exercise-form-title">Add Exercise</h2>
+                    <form id="exercise-form">
+                        <input type="hidden" id="edit-exercise-index" value="-1">
+                        <input type="hidden" id="edit-day-index" value="-1">
+                        
+                        <div class="form-group">
+                            <label for="exercise-name">Exercise Name:</label>
+                            <input type="text" id="exercise-name" required placeholder="e.g. Bench Press">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="exercise-category">Category:</label>
+                            <select id="exercise-category" required>
+                                <option value="">Select category</option>
+                                <option value="chest">Chest</option>
+                                <option value="back">Back</option>
+                                <option value="legs">Legs</option>
+                                <option value="shoulders">Shoulders</option>
+                                <option value="arms">Arms</option>
+                                <option value="core">Core</option>
+                                <option value="cardio">Cardio</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="exercise-sets">Sets:</label>
+                                    <input type="number" id="exercise-sets" min="1" max="20" required placeholder="e.g. 3">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="exercise-reps">Target Reps:</label>
+                                    <input type="number" id="exercise-reps" min="1" max="100" required placeholder="e.g. 12">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="exercise-weight">Weight (kg):</label>
+                                    <input type="number" id="exercise-weight" min="0" max="1000" step="0.5" required placeholder="e.g. 60">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="exercise-rest">Rest (seconds):</label>
+                                    <input type="number" id="exercise-rest" min="0" max="600" step="5" placeholder="e.g. 90">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="exercise-notes">Notes:</label>
+                            <textarea id="exercise-notes" rows="3" placeholder="Additional notes or instructions"></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" id="save-exercise">Save Exercise</button>
+                            <button type="button" id="cancel-exercise-form" class="btn-danger">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Log Exercise Modal -->
+            <div id="logExerciseModal" class="modal">
+                <div class="modal-content">
+                    <h2>Log Exercise</h2>
+                    <form id="log-exercise-form">
+                        <input type="hidden" id="log-exercise-id">
+                        <input type="hidden" id="log-day-index">
+                        
+                        <div class="exercise-info" id="log-exercise-info">
+                            <!-- Exercise info will be displayed here -->
+                        </div>
+                        
+                        <div id="comparison-container" class="comparison-container">
+                            <div class="comparison-col">
+                                <div class="comparison-title">Planned</div>
+                                <div id="planned-details">
+                                    <!-- Planned details will go here -->
+                                </div>
+                            </div>
+                            <div class="comparison-col">
+                                <div class="comparison-title">Actual</div>
+                                <div id="actual-form">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="actual-sets">Sets:</label>
+                                                <input type="number" id="actual-sets" min="1" max="20" required>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="actual-reps">Reps:</label>
+                                                <input type="number" id="actual-reps" min="1" max="100" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="actual-weight">Weight (kg):</label>
+                                                <input type="number" id="actual-weight" min="0" max="1000" step="0.5" required>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="actual-difficulty">Difficulty:</label>
+                                                <select id="actual-difficulty" required>
+                                                    <option value="easy">Too Easy</option>
+                                                    <option value="moderate" selected>Just Right</option>
+                                                    <option value="hard">Too Hard</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="actual-notes">Notes:</label>
+                                        <textarea id="actual-notes" rows="2" placeholder="How did it feel? Any issues?"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" id="save-log" class="btn-success">Save</button>
+                            <button type="button" id="substitute-exercise" class="btn-warning">Substitute</button>
+                            <button type="button" id="skip-exercise" class="btn-danger">Skip</button>
+                            <button type="button" id="cancel-log" class="btn-danger">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="welcome" class="tab-content">
+                <h2>Welcome to FitTrack</h2>
+                
+                <div class="highlights-container">
+                    <div class="highlight-card">
+                        <h3>Today's Overview</h3>
+                        <div id="welcome-today-stats">
+                            <div class="stats-item">
+                                <span>Today's Weight:</span>
+                                <span id="welcome-weight">--</span>
+                            </div>
+                            <div class="stats-item">
+                                <span>Net Calories:</span>
+                                <span id="welcome-calories">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <h3>Progress Summary</h3>
+                        <div id="welcome-progress">
+                            <div class="stats-item">
+                                <span>Weight Change (30 days):</span>
+                                <span id="welcome-weight-change">--</span>
+                            </div>
+                            <div class="stats-item">
+                                <span>Workouts Completed:</span>
+                                <span id="welcome-workouts">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <h3>Today's Workout</h3>
+                        <div id="welcome-workout">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button onclick="switchTab('daily-entry')" class="btn-primary">Log Today's Entry</button>
+                            <button onclick="switchTab('workout-tracker')" class="btn-primary">Track Workout</button>
+                            <button onclick="switchTab('stats')" class="btn-primary">View Stats</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="daily-entry" class="tab-content">
+                <h2>Add Today's Entry</h2>
+                <form id="entry-form">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="date">Date:</label>
+                                <input type="date" id="date" required>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label for="edit-weight-kg">Weight (kg):</label>
-                                <input type="number" id="edit-weight-kg" min="20" max="300" step="0.1" placeholder="Enter weight in kg">
+                                <label for="weight-kg">Weight (kg):</label>
+                                <input type="number" id="weight-kg" min="20" max="300" step="0.1" placeholder="Enter weight in kg">
                             </div>
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="edit-weight-lbs">Weight (lbs):</label>
-                                <input type="number" id="edit-weight-lbs" min="40" max="660" step="0.1" placeholder="Enter weight in lbs">
+                                <label for="weight-lbs">Weight (lbs):</label>
+                                <input type="number" id="weight-lbs" min="40" max="660" step="0.1" placeholder="Enter weight in lbs">
                             </div>
                         </div>
                     </div>
@@ -1834,7 +2157,7 @@
                         <label>Workouts:</label>
                         <div class="row">
                             <div class="col">
-                                <select id="edit-workout-select">
+                                <select id="workout-select">
                                     <option value="">Select workout</option>
                                     <option value="weights">Weights</option>
                                     <option value="martial arts">Martial Arts</option>
@@ -1843,629 +2166,340 @@
                                 </select>
                             </div>
                             <div class="col">
-                                <input type="text" id="edit-custom-workout" placeholder="Or add custom workout">
+                                <input type="text" id="custom-workout" placeholder="Or add custom workout">
                             </div>
                         </div>
-                        <button type="button" id="edit-add-workout" style="margin-top: 10px;">Add Workout</button>
-                        <div id="edit-selected-workouts" class="workout-list"></div>
+                        <button type="button" id="add-workout" class="btn-primary" style="margin-top: 10px;">Add Workout</button>
+                        <div id="selected-workouts" class="workout-list"></div>
                     </div>
                     
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label for="edit-calories-intake">Calories Intake:</label>
-                                <input type="number" id="edit-calories-intake" min="0" max="10000" placeholder="Calories consumed">
+                                <label for="calories-intake">Calories Intake:</label>
+                                <input type="number" id="calories-intake" min="0" max="10000" placeholder="Calories consumed">
                             </div>
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="edit-calories-burned">Calories Burned:</label>
-                                <input type="number" id="edit-calories-burned" min="0" max="10000" placeholder="Calories burned">
+                                <label for="calories-burned">Calories Burned:</label>
+                                <input type="number" id="calories-burned" min="0" max="10000" placeholder="Calories burned">
                             </div>
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" id="save-edit">Save Changes</button>
-                        <button type="button" id="cancel-edit" class="btn-danger">Cancel</button>
+                    <div class="form-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" id="save-entry" class="btn-success">Save Entry</button>
+                        <button type="button" id="reset-form" class="btn-danger">Reset Form</button>
                     </div>
                 </form>
             </div>
-        </div>
-        
-        <!-- Substitute Exercise Modal -->
-        <div id="substituteModal" class="modal">
-            <div class="modal-content">
-                <h2>Substitute Exercise</h2>
-                <div class="form-group">
-                    <label for="substitute-search">Search Exercise:</label>
-                    <input type="text" id="substitute-search" placeholder="Type to search exercises">
-                </div>
-                
-                <div class="substitute-list" id="substitute-exercises">
-                    <!-- Will be populated with JavaScript -->
-                </div>
-                
-                <div class="form-group">
-                    <label for="custom-substitute">Or Add Custom Exercise:</label>
-                    <input type="text" id="custom-substitute" placeholder="Enter exercise name">
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" id="confirm-substitute">Substitute</button>
-                    <button type="button" id="cancel-substitute" class="btn-danger">Cancel</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Exercise Form Modal -->
-        <div id="exerciseFormModal" class="modal">
-            <div class="modal-content">
-                <h2 id="exercise-form-title">Add Exercise</h2>
-                <form id="exercise-form">
-                    <input type="hidden" id="edit-exercise-index" value="-1">
-                    <input type="hidden" id="edit-day-index" value="-1">
-                    
-                    <div class="form-group">
-                        <label for="exercise-name">Exercise Name:</label>
-                        <input type="text" id="exercise-name" required placeholder="e.g. Bench Press">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="exercise-category">Category:</label>
-                        <select id="exercise-category" required>
-                            <option value="">Select category</option>
-                            <option value="chest">Chest</option>
-                            <option value="back">Back</option>
-                            <option value="legs">Legs</option>
-                            <option value="shoulders">Shoulders</option>
-                            <option value="arms">Arms</option>
-                            <option value="core">Core</option>
-                            <option value="cardio">Cardio</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="exercise-sets">Sets:</label>
-                                <input type="number" id="exercise-sets" min="1" max="20" required placeholder="e.g. 3">
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="exercise-reps">Target Reps:</label>
-                                <input type="number" id="exercise-reps" min="1" max="100" required placeholder="e.g. 12">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="exercise-weight">Weight (kg):</label>
-                                <input type="number" id="exercise-weight" min="0" max="1000" step="0.5" required placeholder="e.g. 60">
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="exercise-rest">Rest (seconds):</label>
-                                <input type="number" id="exercise-rest" min="0" max="600" step="5" placeholder="e.g. 90">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="exercise-notes">Notes:</label>
-                        <textarea id="exercise-notes" rows="3" placeholder="Additional notes or instructions"></textarea>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" id="save-exercise">Save Exercise</button>
-                        <button type="button" id="cancel-exercise-form" class="btn-danger">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Log Exercise Modal -->
-        <div id="logExerciseModal" class="modal">
-            <div class="modal-content">
-                <h2>Log Exercise</h2>
-                <form id="log-exercise-form">
-                    <input type="hidden" id="log-exercise-id">
-                    <input type="hidden" id="log-day-index">
-                    
-                    <div class="exercise-info" id="log-exercise-info">
-                        <!-- Exercise info will be displayed here -->
-                    </div>
-                    
-                    <div id="comparison-container" class="comparison-container">
-                        <div class="comparison-col">
-                            <div class="comparison-title">Planned</div>
-                            <div id="planned-details">
-                                <!-- Planned details will go here -->
-                            </div>
-                        </div>
-                        <div class="comparison-col">
-                            <div class="comparison-title">Actual</div>
-                            <div id="actual-form">
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="actual-sets">Sets:</label>
-                                            <input type="number" id="actual-sets" min="1" max="20" required>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="actual-reps">Reps:</label>
-                                            <input type="number" id="actual-reps" min="1" max="100" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="actual-weight">Weight (kg):</label>
-                                            <input type="number" id="actual-weight" min="0" max="1000" step="0.5" required>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="actual-difficulty">Difficulty:</label>
-                                            <select id="actual-difficulty" required>
-                                                <option value="easy">Too Easy</option>
-                                                <option value="moderate" selected>Just Right</option>
-                                                <option value="hard">Too Hard</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="actual-notes">Notes:</label>
-                                    <textarea id="actual-notes" rows="2" placeholder="How did it feel? Any issues?"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" id="save-log" class="btn-success">Save</button>
-                        <button type="button" id="substitute-exercise" class="btn-warning">Substitute</button>
-                        <button type="button" id="skip-exercise" class="btn-danger">Skip</button>
-                        <button type="button" id="cancel-log" class="btn-danger">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <div id="welcome" class="tab-content">
-            <h2>Welcome to FitTrack</h2>
             
-            <div class="highlights-container">
-                <div class="highlight-card">
-                    <h3>Today's Overview</h3>
-                    <div id="welcome-today-stats">
+            <div id="stats" class="tab-content">
+                <h2>Stats & Projections</h2>
+                
+                <section>
+                    <div class="stats-card">
+                        <h3>Weight Statistics</h3>
                         <div class="stats-item">
-                            <span>Today's Weight:</span>
-                            <span id="welcome-weight">--</span>
+                            <span>Current Weight:</span>
+                            <span id="current-weight">--</span>
                         </div>
                         <div class="stats-item">
-                            <span>Net Calories:</span>
-                            <span id="welcome-calories">--</span>
+                            <span>Starting Weight:</span>
+                            <span id="starting-weight">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Total Change:</span>
+                            <span id="total-change">--</span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="highlight-card">
-                    <h3>Progress Summary</h3>
-                    <div id="welcome-progress">
+                    
+                    <div class="stats-card">
+                        <h3>Weight Projections</h3>
                         <div class="stats-item">
-                            <span>Weight Change (30 days):</span>
-                            <span id="welcome-weight-change">--</span>
+                            <span>7 Days:</span>
+                            <span id="projection-7">--</span>
                         </div>
                         <div class="stats-item">
-                            <span>Workouts Completed:</span>
-                            <span id="welcome-workouts">--</span>
+                            <span>30 Days:</span>
+                            <span id="projection-30">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>60 Days:</span>
+                            <span id="projection-60">--</span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="highlight-card">
-                    <h3>Today's Workout</h3>
-                    <div id="welcome-workout">
-                        <!-- Will be populated by JavaScript -->
+                    
+                    <div class="stats-card">
+                        <h3>Calorie Summary</h3>
+                        <div class="stats-item">
+                            <span>Today's Net Calories:</span>
+                            <span id="today-net-calories">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>This Week's Net Calories:</span>
+                            <span id="week-net-calories">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Average Daily Deficit/Surplus (All Time):</span>
+                            <span id="avg-daily-calories-all-time">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Average Daily Deficit/Surplus (Last 7 Days):</span>
+                            <span id="avg-daily-calories-week">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Theoretical Weight Change (Calories):</span>
+                            <span id="theoretical-weight-change">--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3>Workout Statistics</h3>
+                        <div class="stats-item">
+                            <span>Completed Workouts:</span>
+                            <span id="completed-workouts">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Completion Rate:</span>
+                            <span id="completion-rate">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Total Volume (Last Week):</span>
+                            <span id="total-volume">--</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <div id="graphs" class="tab-content">
+                <h2>Weight Progression</h2>
+                <div class="graph-controls">
+                    <div class="btn-group" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="graph-btn active" data-range="week">Week</button>
+                        <button class="graph-btn" data-range="month">Month</button>
+                        <button class="graph-btn" data-range="3month">3 Months</button>
+                        <button class="graph-btn" data-range="year">Year</button>
+                        <button class="graph-btn" data-range="all">All Time</button>
                     </div>
                 </div>
-                
-                <div class="highlight-card">
-                    <h3>Quick Actions</h3>
-                    <div class="quick-actions">
-                        <button onclick="switchTab('daily-entry')" class="btn-primary">Log Today's Entry</button>
-                        <button onclick="switchTab('workout-tracker')" class="btn-primary">Track Workout</button>
-                        <button onclick="switchTab('stats')" class="btn-primary">View Stats</button>
+                <div class="graph-container" style="height: 400px; position: relative;">
+                    <canvas id="weightChart"></canvas>
+                </div>
+                <div class="graph-info" style="margin-top: 20px;">
+                    <div id="graph-summary" class="stats-card">
+                        <h3>Summary for Selected Period</h3>
+                        <div class="stats-item">
+                            <span>Starting Weight:</span>
+                            <span id="graph-starting-weight">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Ending Weight:</span>
+                            <span id="graph-ending-weight">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Change:</span>
+                            <span id="graph-weight-change">--</span>
+                        </div>
+                        <div class="stats-item">
+                            <span>Average Daily Change:</span>
+                            <span id="graph-daily-change">--</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div id="daily-entry" class="tab-content">
-            <h2>Add Today's Entry</h2>
-            <form id="entry-form">
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="date">Date:</label>
-                            <input type="date" id="date" required>
-                        </div>
-                    </div>
+            
+            <div id="history" class="tab-content">
+                <h2>History</h2>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight (kg/lbs)</th>
+                            <th>Workouts</th>
+                            <th>Net Calories</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-data">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="export-data" style="background-color: var(--secondary);">Export Data (JSON)</button>
+                    <label for="import-file" style="background-color: var(--accent); color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; display: inline-block;">
+                        Import Data (JSON)
+                    </label>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                    <button id="clear-data" class="btn-danger">Clear All Data</button>
                 </div>
+            </div>
+            
+            <!-- Workout Plan Tab -->
+            <div id="workout-plan" class="tab-content">
+                <h2>Workout Mesocycle Planner</h2>
                 
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="weight-kg">Weight (kg):</label>
-                            <input type="number" id="weight-kg" min="20" max="300" step="0.1" placeholder="Enter weight in kg">
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="weight-lbs">Weight (lbs):</label>
-                            <input type="number" id="weight-lbs" min="40" max="660" step="0.1" placeholder="Enter weight in lbs">
-                        </div>
-                    </div>
+                <div class="card-notice">
+                    Configure your workout plan for Week 1, and the system will automatically create a progressive overload plan for future weeks.
                 </div>
                 
                 <div class="form-group">
-                    <label>Workouts:</label>
-                    <div class="row">
-                        <div class="col">
-                            <select id="workout-select">
-                                <option value="">Select workout</option>
-                                <option value="weights">Weights</option>
-                                <option value="martial arts">Martial Arts</option>
-                                <option value="biking">Biking</option>
-                                <option value="running">Running</option>
+                    <label for="mesocycle-name">Mesocycle Name:</label>
+                    <input type="text" id="mesocycle-name" placeholder="e.g. Summer Hypertrophy Block">
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="mesocycle-weeks">Number of Weeks:</label>
+                            <input type="number" id="mesocycle-weeks" min="2" max="16" value="6">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="overload-strategy">Progression Strategy:</label>
+                            <select id="overload-strategy">
+                                <option value="weight">Increase Weight</option>
+                                <option value="reps">Increase Reps</option>
+                                <option value="sets">Increase Sets</option>
+                                <option value="mixed" selected>Mixed (Weight, Reps, Sets)</option>
                             </select>
                         </div>
-                        <div class="col">
-                            <input type="text" id="custom-workout" placeholder="Or add custom workout">
-                        </div>
-                    </div>
-                    <button type="button" id="add-workout" class="btn-primary" style="margin-top: 10px;">Add Workout</button>
-                    <div id="selected-workouts" class="workout-list"></div>
-                </div>
-                
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="calories-intake">Calories Intake:</label>
-                            <input type="number" id="calories-intake" min="0" max="10000" placeholder="Calories consumed">
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="calories-burned">Calories Burned:</label>
-                            <input type="number" id="calories-burned" min="0" max="10000" placeholder="Calories burned">
-                        </div>
                     </div>
                 </div>
                 
-                <div class="form-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" id="save-entry" class="btn-success">Save Entry</button>
-                    <button type="button" id="reset-form" class="btn-danger">Reset Form</button>
-                </div>
-            </form>
-        </div>
-        
-        <div id="stats" class="tab-content">
-            <h2>Stats & Projections</h2>
-            
-            <section>
-                <div class="stats-card">
-                    <h3>Weight Statistics</h3>
-                    <div class="stats-item">
-                        <span>Current Weight:</span>
-                        <span id="current-weight">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Starting Weight:</span>
-                        <span id="starting-weight">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Total Change:</span>
-                        <span id="total-change">--</span>
-                    </div>
+                <div class="toggle-btn">
+                    <button type="button" id="config-mode" class="active">Configure</button>
+                    <button type="button" id="preview-mode">Preview</button>
                 </div>
                 
-                <div class="stats-card">
-                    <h3>Weight Projections</h3>
-                    <div class="stats-item">
-                        <span>7 Days:</span>
-                        <span id="projection-7">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>30 Days:</span>
-                        <span id="projection-30">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>60 Days:</span>
-                        <span id="projection-60">--</span>
-                    </div>
-                </div>
-                
-                <div class="stats-card">
-                    <h3>Calorie Summary</h3>
-                    <div class="stats-item">
-                        <span>Today's Net Calories:</span>
-                        <span id="today-net-calories">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>This Week's Net Calories:</span>
-                        <span id="week-net-calories">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Average Daily Deficit/Surplus (All Time):</span>
-                        <span id="avg-daily-calories-all-time">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Average Daily Deficit/Surplus (Last 7 Days):</span>
-                        <span id="avg-daily-calories-week">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Theoretical Weight Change (Calories):</span>
-                        <span id="theoretical-weight-change">--</span>
-                    </div>
-                </div>
-                
-                <div class="stats-card">
-                    <h3>Workout Statistics</h3>
-                    <div class="stats-item">
-                        <span>Completed Workouts:</span>
-                        <span id="completed-workouts">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Completion Rate:</span>
-                        <span id="completion-rate">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Total Volume (Last Week):</span>
-                        <span id="total-volume">--</span>
-                    </div>
-                </div>
-            </section>
-        </div>
-        
-        <div id="graphs" class="tab-content">
-            <h2>Weight Progression</h2>
-            <div class="graph-controls">
-                <div class="btn-group" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button class="graph-btn active" data-range="week">Week</button>
-                    <button class="graph-btn" data-range="month">Month</button>
-                    <button class="graph-btn" data-range="3month">3 Months</button>
-                    <button class="graph-btn" data-range="year">Year</button>
-                    <button class="graph-btn" data-range="all">All Time</button>
-                </div>
-            </div>
-            <div class="graph-container" style="height: 400px; position: relative;">
-                <canvas id="weightChart"></canvas>
-            </div>
-            <div class="graph-info" style="margin-top: 20px;">
-                <div id="graph-summary" class="stats-card">
-                    <h3>Summary for Selected Period</h3>
-                    <div class="stats-item">
-                        <span>Starting Weight:</span>
-                        <span id="graph-starting-weight">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Ending Weight:</span>
-                        <span id="graph-ending-weight">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Change:</span>
-                        <span id="graph-weight-change">--</span>
-                    </div>
-                    <div class="stats-item">
-                        <span>Average Daily Change:</span>
-                        <span id="graph-daily-change">--</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="history" class="tab-content">
-            <h2>History</h2>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Weight (kg/lbs)</th>
-                        <th>Workouts</th>
-                        <th>Net Calories</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="history-data">
-                    <!-- Data will be populated by JavaScript -->
-                </tbody>
-            </table>
-            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="export-data" style="background-color: var(--secondary);">Export Data (JSON)</button>
-                <label for="import-file" style="background-color: var(--accent); color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; display: inline-block;">
-                    Import Data (JSON)
-                </label>
-                <input type="file" id="import-file" accept=".json" style="display: none;">
-                <button id="clear-data" class="btn-danger">Clear All Data</button>
-            </div>
-        </div>
-        
-        <!-- Workout Plan Tab -->
-        <div id="workout-plan" class="tab-content">
-            <h2>Workout Mesocycle Planner</h2>
-            
-            <div class="card-notice">
-                Configure your workout plan for Week 1, and the system will automatically create a progressive overload plan for future weeks.
-            </div>
-            
-            <div class="form-group">
-                <label for="mesocycle-name">Mesocycle Name:</label>
-                <input type="text" id="mesocycle-name" placeholder="e.g. Summer Hypertrophy Block">
-            </div>
-            
-            <div class="row">
-                <div class="col">
+                <div id="config-section">
                     <div class="form-group">
-                        <label for="mesocycle-weeks">Number of Weeks:</label>
-                        <input type="number" id="mesocycle-weeks" min="2" max="16" value="6">
+                        <label>Workout Days:</label>
+                        <div class="day-selector" id="day-selector">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                        <button type="button" id="add-day">Add New Workout Day</button>
+                    </div>
+                    
+                    <div id="day-exercises">
+                        <div class="card-notice" id="no-day-selected" style="display: none;">
+                            Please select or add a workout day to configure exercises.
+                        </div>
+                        
+                        <div id="exercise-list">
+                            <!-- Exercises will be listed here -->
+                        </div>
+                        
+                        <button type="button" id="add-exercise" style="margin-top: 15px; display: none;">Add Exercise</button>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="overload-strategy">Progression Strategy:</label>
-                        <select id="overload-strategy">
-                            <option value="weight">Increase Weight</option>
-                            <option value="reps">Increase Reps</option>
-                            <option value="sets">Increase Sets</option>
-                            <option value="mixed" selected>Mixed (Weight, Reps, Sets)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="toggle-btn">
-                <button type="button" id="config-mode" class="active">Configure</button>
-                <button type="button" id="preview-mode">Preview</button>
-            </div>
-            
-            <div id="config-section">
-                <div class="form-group">
-                    <label>Workout Days:</label>
-                    <div class="day-selector" id="day-selector">
+                
+                <div id="preview-section" style="display: none;">
+                    <h3>Mesocycle Progression Preview</h3>
+                    <div class="mesocycle-weeks" id="mesocycle-preview">
                         <!-- Will be populated by JavaScript -->
                     </div>
-                    <button type="button" id="add-day">Add New Workout Day</button>
                 </div>
                 
-                <div id="day-exercises">
-                    <div class="card-notice" id="no-day-selected" style="display: none;">
-                        Please select or add a workout day to configure exercises.
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" id="save-mesocycle">Save Mesocycle</button>
+                    <button type="button" id="export-mesocycle" style="background-color: var(--secondary);">Export Mesocycle</button>
+                    <label for="import-mesocycle-file" style="background-color: var(--accent); color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; display: inline-block;">
+                        Import Mesocycle
+                    </label>
+                    <input type="file" id="import-mesocycle-file" accept=".json" style="display: none;">
+                    <button type="button" id="reset-mesocycle" class="btn-danger">Reset Plan</button>
+                </div>
+            </div>
+            
+            <!-- Workout Tracker Tab -->
+            <div id="workout-tracker" class="tab-content">
+                <h2>Workout Tracker</h2>
+                
+                <div class="form-group">
+                    <label for="tracker-date">Select Date:</label>
+                    <input type="date" id="tracker-date">
+                </div>
+                
+                <div id="workout-selector-card" class="stats-card">
+                    <h3>Select Workout for <span id="workout-date-display"></span></h3>
+                    
+                    <div class="workout-options-container" id="workout-options-container">
+                        <!-- Workout options will be populated dynamically -->
                     </div>
                     
-                    <div id="exercise-list">
-                        <!-- Exercises will be listed here -->
-                    </div>
+                    <div id="workout-status-display" style="margin-top: 15px;"></div>
                     
-                    <button type="button" id="add-exercise" style="margin-top: 15px; display: none;">Add Exercise</button>
-                </div>
-            </div>
-            
-            <div id="preview-section" style="display: none;">
-                <h3>Mesocycle Progression Preview</h3>
-                <div class="mesocycle-weeks" id="mesocycle-preview">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-            
-            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" id="save-mesocycle">Save Mesocycle</button>
-                <button type="button" id="export-mesocycle" style="background-color: var(--secondary);">Export Mesocycle</button>
-                <label for="import-mesocycle-file" style="background-color: var(--accent); color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; display: inline-block;">
-                    Import Mesocycle
-                </label>
-                <input type="file" id="import-mesocycle-file" accept=".json" style="display: none;">
-                <button type="button" id="reset-mesocycle" class="btn-danger">Reset Plan</button>
-            </div>
-        </div>
-        
-        <!-- Workout Tracker Tab -->
-        <div id="workout-tracker" class="tab-content">
-            <h2>Workout Tracker</h2>
-            
-            <div class="form-group">
-                <label for="tracker-date">Select Date:</label>
-                <input type="date" id="tracker-date">
-            </div>
-            
-            <div id="workout-selector-card" class="stats-card">
-                <h3>Select Workout for <span id="workout-date-display"></span></h3>
-                
-                <div class="workout-options-container" id="workout-options-container">
-                    <!-- Workout options will be populated dynamically -->
-                </div>
-                
-                <div id="workout-status-display" style="margin-top: 15px;"></div>
-                
-                <div id="no-workouts-notice" style="margin-top: 20px; display: none;">
-                    <div class="card-notice">
-                        <p>You haven't created any workout days yet.</p>
-                        <button type="button" id="go-to-plan-btn" class="btn-primary" style="margin-top: 10px;">Go to Workout Plan</button>
+                    <div id="no-workouts-notice" style="margin-top: 20px; display: none;">
+                        <div class="card-notice">
+                            <p>You haven't created any workout days yet.</p>
+                            <button type="button" id="go-to-plan-btn" class="btn-primary" style="margin-top: 10px;">Go to Workout Plan</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div id="planned-workout-card" class="stats-card" style="display: none;">
-                <h3>Workout for <span id="workout-date-display-2"></span></h3>
-                <div id="workout-day-name"></div>
-                <div id="workout-completion-status"></div>
-                <button type="button" id="change-workout-btn" class="btn-primary" style="margin-top: 10px;">Change Workout</button>
-            </div>
-            
-            <div id="no-workout-card" class="card-notice" style="display: none;">
-                <h3>Rest Day</h3>
-                <p>You've marked this as a rest day. No workout planned.</p>
-                <button type="button" id="change-to-workout-btn" class="btn-primary">Change to Workout Day</button>
-            </div>
-            
-            <div id="exercise-tracker-list">
-                <!-- Exercise lists for tracking will go here -->
-            </div>
-            
-            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" id="mark-completed" class="btn-success" style="display: none;">Mark All Completed</button>
-                <button type="button" id="skip-workout" class="btn-danger" style="display: none;">Skip This Workout</button>
+                
+                <div id="planned-workout-card" class="stats-card" style="display: none;">
+                    <h3>Workout for <span id="workout-date-display-2"></span></h3>
+                    <div id="workout-day-name"></div>
+                    <div id="workout-completion-status"></div>
+                    <button type="button" id="change-workout-btn" class="btn-primary" style="margin-top: 10px;">Change Workout</button>
+                </div>
+                
+                <div id="no-workout-card" class="card-notice" style="display: none;">
+                    <h3>Rest Day</h3>
+                    <p>You've marked this as a rest day. No workout planned.</p>
+                    <button type="button" id="change-to-workout-btn" class="btn-primary">Change to Workout Day</button>
+                </div>
+                
+                <div id="exercise-tracker-list">
+                    <!-- Exercise lists for tracking will go here -->
+                </div>
+                
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" id="mark-completed" class="btn-success" style="display: none;">Mark All Completed</button>
+                    <button type="button" id="skip-workout" class="btn-danger" style="display: none;">Skip This Workout</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Mobile navigation -->
-    <nav class="mobile-nav">
-        <div class="mobile-nav-list">
-            <div class="mobile-nav-item" data-tab="welcome">
-                <svg class="mobile-nav-icon" viewBox="0 0 24 24">
-                    <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
-                </svg>
-                <span class="mobile-nav-label">Home</span>
+        <!-- Mobile navigation -->
+        <nav class="mobile-nav">
+            <div class="mobile-nav-list">
+                <div class="mobile-nav-item" data-tab="welcome">
+                    <svg class="mobile-nav-icon" viewBox="0 0 24 24">
+                        <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+                    </svg>
+                    <span class="mobile-nav-label">Home</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="daily-entry">
+                    <svg class="mobile-nav-icon" viewBox="0 0 24 24">
+                        <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                    </svg>
+                    <span class="mobile-nav-label">Log</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="stats">
+                    <svg class="mobile-nav-icon" viewBox="0 0 24 24">
+                        <path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
+                    </svg>
+                    <span class="mobile-nav-label">Stats</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="workout-tracker">
+                    <svg class="mobile-nav-icon" viewBox="0 0 24 24">
+                        <path d="M20.57,14.86L22,13.43L20.57,12L17,15.57L8.43,7L12,3.43L10.57,2L9.14,3.43L7.71,2L5.57,4.14L4.14,2.71L2.71,4.14L4.14,5.57L2,7.71L3.43,9.14L2,10.57L3.43,12L7,8.43L15.57,17L12,20.57L13.43,22L14.86,20.57L16.29,22L18.43,19.86L19.86,21.29L21.29,19.86L19.86,18.43L22,16.29L20.57,14.86Z" />
+                    </svg>
+                    <span class="mobile-nav-label">Workout</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="more">
+                    <svg class="mobile-nav-icon" viewBox="0 0 24 24">
+                        <path d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z" />
+                    </svg>
+                    <span class="mobile-nav-label">More</span>
+                </div>
             </div>
-            <div class="mobile-nav-item" data-tab="daily-entry">
-                <svg class="mobile-nav-icon" viewBox="0 0 24 24">
-                    <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-                </svg>
-                <span class="mobile-nav-label">Log</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="stats">
-                <svg class="mobile-nav-icon" viewBox="0 0 24 24">
-                    <path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
-                </svg>
-                <span class="mobile-nav-label">Stats</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="workout-tracker">
-                <svg class="mobile-nav-icon" viewBox="0 0 24 24">
-                    <path d="M20.57,14.86L22,13.43L20.57,12L17,15.57L8.43,7L12,3.43L10.57,2L9.14,3.43L7.71,2L5.57,4.14L4.14,2.71L2.71,4.14L4.14,5.57L2,7.71L3.43,9.14L2,10.57L3.43,12L7,8.43L15.57,17L12,20.57L13.43,22L14.86,20.57L16.29,22L18.43,19.86L19.86,21.29L21.29,19.86L19.86,18.43L22,16.29L20.57,14.86Z" />
-                </svg>
-                <span class="mobile-nav-label">Workout</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="more">
-                <svg class="mobile-nav-icon" viewBox="0 0 24 24">
-                    <path d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z" />
-                </svg>
-                <span class="mobile-nav-label">More</span>
-            </div>
-        </div>
-    </nav>
+        </nav>
+    </div>
 
     <script>
         // Constants
