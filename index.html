@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FitTrack</title>
     
     <!-- PWA Meta Tags -->
@@ -1716,16 +1716,15 @@
 
         /* Add mobile bottom navigation styles */
         .mobile-nav {
-            display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            padding-bottom: env(safe-area-inset-bottom, 0px);
+            background: var(--light);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
-            height: var(--nav-height);
+            height: calc(var(--nav-height) + env(safe-area-inset-bottom, 34px));
+            padding-bottom: env(safe-area-inset-bottom, 34px);
         }
 
         .mobile-nav-list {
